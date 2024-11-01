@@ -68,13 +68,13 @@ class Decoder(nn.Module):
 
 
 class IdemNet (nn.Module):
-  def __init__(self) -> None:
+  def __init__(self, image_channels=1) -> None:
     super(IdemNet, self).__init__()
 
     # define layers
-    self.encoder = Encoder()
+    self.encoder = Encoder(image_channels)
 
-    self.decoder = Decoder()
+    self.decoder = Decoder(image_channels)
 
   def forward(self, x):
     x = self.encoder(x)
