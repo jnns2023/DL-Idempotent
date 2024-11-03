@@ -2,6 +2,11 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+def init_weights(m):
+  if isinstance(m, nn.Conv2d) or isinstance(m, nn.BatchNorm2d):
+    nn.init.normal_(m.weight, mean=0.0, std=0.02)
+    nn.init.constant_(m.bias, 0.0)
+
 class Encoder(nn.Module):
   def __init__(self, in_channels=1, relu_slope=0.2):
     super(Encoder, self).__init__()
@@ -73,8 +78,10 @@ class IdemNet (nn.Module):
 
     # define layers
     self.encoder = Encoder(image_channels)
+    self.encoder.apply(init_weights)  # set weights to papers initialization
 
     self.decoder = Decoder(image_channels)
+    self.decoder.apply(init_weights)
 
   def forward(self, x):
     x = self.encoder(x)

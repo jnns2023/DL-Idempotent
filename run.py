@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from tqdm import tqdm
 from torch.utils.data import DataLoader
-from data_loader import get_data_loader
-from indem_net import IndemNet
+from data_loader import load_CelebA
+from idem_net import IdemNet
 
 
 
 def main():
-
     # Loss term weights
     lambda_rec = 20
     lambda_idem = 20
@@ -24,11 +24,11 @@ def main():
     batch_size = 64
 
     # Load data
-    data_loader = get_data_loader(batch_size)
+    data_loader, test_loader = load_CelebA(batch_size)
 
     # Initialize f and f_copy
-    f = IndemNet()
-    f_copy = IndemNet()
+    f = IdemNet(image_channels=3)
+    f_copy = IdemNet(image_channels=3)
 
 
     # Initialize optimizer
@@ -70,27 +70,28 @@ def main():
 
 def train(f, f_copy, lambda_idem, lambda_rec, lambda_tight, opt, data_loader, n_epochs):
     for epoch in range(n_epochs):
-        for x in data_loader:
+        progress = tqdm(data_loader, desc=f'Epoch: {epoch + 1}/{n_epochs}')
+        for x, labels in progress:
             z = torch.randn_like(x)
 
-        # apply f to get all needed
-        f_copy.load_state_dict(f.state_dict())
-        fx = f(x)
-        fz = f(z)
-        f_z = fz.detach()
-        ff_z = f(f_z)
-        f_fz = f_copy(fz)
-        
-        # calculate losses
-        loss_rec = (fx - x).pow(2).mean()
-        loss_idem = (f_fz - fz).pow(2).mean()
-        loss_tight = -(ff_z - f_z).pow(2).mean()
-        
-        # optimize for losses
-        loss = loss_rec * lambda_rec + loss_idem * lambda_idem + loss_tight * lambda_tight
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
+            # apply f to get all needed
+            f_copy.load_state_dict(f.state_dict())
+            fx = f(x)
+            fz = f(z)
+            f_z = fz.detach()
+            ff_z = f(f_z)
+            f_fz = f_copy(fz)
+            
+            # calculate losses
+            loss_rec = (fx - x).pow(2).mean()
+            loss_idem = (f_fz - fz).pow(2).mean()
+            loss_tight = -(ff_z - f_z).pow(2).mean()
+            
+            # optimize for losses
+            loss = loss_rec * lambda_rec + loss_idem * lambda_idem + loss_tight * lambda_tight
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
 
 if __name__ == "__main__":
     main()

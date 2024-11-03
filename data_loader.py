@@ -41,7 +41,7 @@ def load_CelebA(batch_size=1):
     split='train',
     # target_type='attr',
     transform=transform,
-    download=False
+    download=True
   )
 
   test_data = datasets.CelebA(
@@ -49,7 +49,7 @@ def load_CelebA(batch_size=1):
     split='test',
     # target_type='attr',
     transform=transform,
-    download=False
+    download=True
   )
 
   train_loader = DataLoader(training_data, batch_size, shuffle=True)
