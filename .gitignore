@@ -1,5 +1,9 @@
 # ignore data folder
 data/
+runs/
+test_runs/
+checkpoints/
+test_checkpoints/
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
