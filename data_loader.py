@@ -23,8 +23,9 @@ def load_MNIST(batch_size=1):
     transform=transform
   )
 
-  train_loader = DataLoader(training_data, batch_size, shuffle=True)
-  test_loader = DataLoader(test_data, batch_size, shuffle=True)
+  train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True, persistent_workers=True)
+  test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
+
 
   return train_loader, test_loader
 
