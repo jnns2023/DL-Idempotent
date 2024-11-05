@@ -13,18 +13,18 @@ class Encoder(nn.Module):
 
     self.relu_slope = relu_slope
 
-    self.conv1 = nn.Conv2d(in_channels, out_channels=64, kernel_size=4, stride=2, padding=1)  # need to set in_channels to 3 for color images
+    self.conv1 = nn.Conv2d(in_channels, out_channels=64, kernel_size=4, stride=2, padding=1)  # 64 x 32 x 32
 
-    self.conv2 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, padding=1)
+    self.conv2 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, padding=1) # 128 x 16 x 16
     self.bn2 = nn.BatchNorm2d(128)
 
-    self.conv3 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=2, padding=1)
+    self.conv3 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=2, padding=1) # 256 x 8 x 8
     self.bn3 = nn.BatchNorm2d(256)
 
-    self.conv4 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=4, stride=2, padding=1)
+    self.conv4 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=4, stride=2, padding=1) # 512 x 4 x 4
     self.bn4 = nn.BatchNorm2d(512)
 
-    self.conv5 = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=4, stride=1, padding=0)
+    self.conv5 = nn.Conv2d(in_channels=512, out_channels=512, kernel_size=4, stride=1, padding=0) # 512 x 1 x 1
 
   def forward(self, x):
     x = F.leaky_relu(self.conv1(x), self.relu_slope)
@@ -72,9 +72,9 @@ class Decoder(nn.Module):
 
 
 
-class IdemNet (nn.Module):
+class IdemNetCeleba (nn.Module):
   def __init__(self, image_channels=1) -> None:
-    super(IdemNet, self).__init__()
+    super(IdemNetCeleba, self).__init__()
 
     # define layers
     self.encoder = Encoder(image_channels)
