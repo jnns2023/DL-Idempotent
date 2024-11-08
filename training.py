@@ -20,7 +20,7 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
 
     batch_count = 0
     for epoch in range(hparams['n_epochs']):
-        progress = tqdm(data_loader, desc=f'Epoch: {epoch + 1}/{hparams['n_epochs']}')
+        progress = tqdm(data_loader, desc=f'Epoch: {epoch + 1}/{hparams["n_epochs"]}')
         for x, labels in progress:
             x = x.to(device)
             z = torch.randn_like(x)
