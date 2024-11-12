@@ -44,7 +44,8 @@ def main(testing=False):
         'batch_size': 256,
         'testing': testing, 
         'save_path': save_path, 
-        'save_interval': 5
+        'save_interval': 5,
+        'log_path': 'mnist' + datetime.now().strftime("%Y%m%d-%H%M%S")
     }
 
     # Load data
@@ -53,9 +54,6 @@ def main(testing=False):
     # Initialize f and f_copy
     f = IdemNetMnist().to(device)
     f_copy = IdemNetMnist().to(device)
-
-
-
 
     # Initialize optimizer
     opt = optim.Adam(f.parameters(), lr=hparams['alpha'], betas=(hparams['beta1'], hparams['beta2']))

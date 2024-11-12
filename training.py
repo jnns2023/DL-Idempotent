@@ -1,5 +1,4 @@
 import torch
-from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
@@ -13,7 +12,7 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
     test_imgs, _ = next(iter(data_loader))
     test_imgs = test_imgs[0:9].to(device)
 
-    writer = SummaryWriter(log_dir=log_path + 'celeba' + datetime.now().strftime("%Y%m%d-%H%M%S"))
+    writer = SummaryWriter(log_dir=log_path + hparams['log_path'])
     hparams_text = "\n".join([f"{key}: {value}" for key, value in hparams.items()])
     writer.add_text('Hyperparameters', hparams_text)
     writer.add_images('Generation', test_imgs)
@@ -51,7 +50,7 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
             opt.step()
             batch_count += 1
         
-        writer.add_images('Generation', f(test_imgs), epoch+1)
+        writer.add_images('Reconstruction', f(test_imgs), epoch+1)
         if (epoch % hparams['save_interval'] == 0):
             torch.save({
                 'epoch': epoch + 1,

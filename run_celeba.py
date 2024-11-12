@@ -44,7 +44,8 @@ def main(testing=False):
         'batch_size': 256,
         'testing': testing, 
         'save_path': save_path, 
-        'save_interval': 5
+        'save_interval': 5,
+        'log_path': 'celeba' + datetime.now().strftime("%Y%m%d-%H%M%S")
     }
 
     # Load data
