@@ -13,10 +13,11 @@ from training import train
 
 
 
-def main(testing=False):
+def main(testing=True):
     # select correct device
     if torch.cuda.is_available():
         device = torch.device('cuda')
+        testing = False
     elif torch.backends.mps.is_available():
         device = torch.device('mps')
     else:
