@@ -40,7 +40,7 @@ def main(testing=False):
         'alpha': 0.0001,
         'beta1': 0.5,
         'beta2': 0.999,
-        'n_epochs': 10,
+        'n_epochs': 100,
         'batch_size': 256,
         'testing': testing, 
         'save_path': save_path, 
