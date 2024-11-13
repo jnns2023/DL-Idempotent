@@ -1,5 +1,6 @@
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
 from gen_utils import *
 
@@ -52,6 +53,19 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
 
             opt.zero_grad()
             loss.backward()
+
+            clip_grad_norm_(f.parameters(), max_norm=10.0)
+
+            parameters = [p for p in f.parameters() if p.grad is not None and p.requires_grad]
+            if len(parameters) == 0:
+                writer.add_scalar("Grad_Norm", 0, batch_count)
+            else:
+                device = parameters[0].grad.device
+                total_norm = torch.norm(
+                    torch.stack([torch.norm(p.grad.detach(), 2).to(device) for p in parameters]),
+                    2).item()
+                writer.add_scalar("Grad_Norm", total_norm, batch_count)
+
             opt.step()
             batch_count += 1
         
