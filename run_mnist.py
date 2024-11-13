@@ -13,10 +13,11 @@ from training import train
 
 
 
-def main(testing=False):
+def main(testing=True):
     # select correct device
     if torch.cuda.is_available():
         device = torch.device('cuda')
+        testing = False
     elif torch.backends.mps.is_available():
         device = torch.device('mps')
     else:
@@ -40,11 +41,11 @@ def main(testing=False):
         'alpha': 0.0001,
         'beta1': 0.5,
         'beta2': 0.999,
-        'n_epochs': 10,
+        'n_epochs': 100,
         'batch_size': 256,
         'testing': testing, 
         'save_path': save_path, 
-        'save_interval': 5,
+        'save_interval': 10,
         'log_path': 'mnist' + datetime.now().strftime("%Y%m%d-%H%M%S")
     }
 
@@ -64,7 +65,7 @@ def main(testing=False):
     train(f, f_copy, opt, data_loader, hparams, device)
 
     # Save model
-    torch.save(f.state_dict(), save_path + "_final.pth")
+    torch.save(f.state_dict(), save_path + "final.pth")
 
     #Plot results
     # TODO

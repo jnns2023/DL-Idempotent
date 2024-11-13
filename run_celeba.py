@@ -13,10 +13,11 @@ from training import train
 
 
 
-def main(testing=False):
+def main(testing=True):
     # select correct device
     if torch.cuda.is_available():
         device = torch.device('cuda')
+        testing = False
     elif torch.backends.mps.is_available():
         device = torch.device('mps')
     else:
@@ -40,7 +41,7 @@ def main(testing=False):
         'alpha': 0.0001,
         'beta1': 0.5,
         'beta2': 0.999,
-        'n_epochs': 10,
+        'n_epochs': 100,
         'batch_size': 256,
         'testing': testing, 
         'save_path': save_path, 

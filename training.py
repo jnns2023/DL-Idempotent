@@ -1,6 +1,8 @@
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
+from gen_utils import *
 
 def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
     print(f"Training using {device}")
@@ -18,13 +20,17 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
     writer.add_images('Generation', test_imgs)
 
     batch_count = 0
+    
+    z_gen = torch.randn_like(test_imgs) # Batch of noise to generate images from
+
+    # Training loop
     for epoch in range(hparams['n_epochs']):
         progress = tqdm(data_loader, desc=f'Epoch: {epoch + 1}/{hparams["n_epochs"]}')
         for x, labels in progress:
             x = x.to(device)
             z = torch.randn_like(x)
 
-            # apply f to get all needed
+            # Forward pass
             f_copy.load_state_dict(f.state_dict())
             fx = f(x)
             fz = f(z)
@@ -47,16 +53,40 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
 
             opt.zero_grad()
             loss.backward()
+
+            clip_grad_norm_(f.parameters(), max_norm=10.0)
+
+            parameters = [p for p in f.parameters() if p.grad is not None and p.requires_grad]
+            if len(parameters) == 0:
+                writer.add_scalar("Grad_Norm", 0, batch_count)
+            else:
+                device = parameters[0].grad.device
+                total_norm = torch.norm(
+                    torch.stack([torch.norm(p.grad.detach(), 2).to(device) for p in parameters]),
+                    2).item()
+                writer.add_scalar("Grad_Norm", total_norm, batch_count)
+
             opt.step()
             batch_count += 1
         
+        # Log reconstruction
         writer.add_images('Reconstruction', f(test_imgs), epoch+1)
+
+        # Generate images
+        img_no = 9 # Number of images to generate
+        writer.add_images('Generation', f(z_gen), epoch+1)
+
+
+        # Save model
         if (epoch % hparams['save_interval'] == 0):
+            checkpoint_path = hparams["save_path"] + f"epoch_{epoch + 1}.pth"
             torch.save({
                 'epoch': epoch + 1,
                 'model_state_dict': f.state_dict(),
                 'optimizer_state_dict': opt.state_dict(),
-            }, hparams["save_path"] + f"epoch_{epoch + 1}.pth")
+            }, checkpoint_path)
+
+
 
     writer.flush()
     writer.close()
