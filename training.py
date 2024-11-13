@@ -17,7 +17,7 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
     writer = SummaryWriter(log_dir=log_path + hparams['log_path'])
     hparams_text = "\n".join([f"{key}: {value}" for key, value in hparams.items()])
     writer.add_text('Hyperparameters', hparams_text)
-    writer.add_images('Generation', test_imgs)
+    writer.add_images('Reconstruction', test_imgs)
 
     batch_count = 0
     
