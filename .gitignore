@@ -3,8 +3,9 @@ data/
 test_runs/
 test_checkpoints/
 # Ignore everything in the checkpoints folder
-checkpoints/*
+checkpoints/**
 # Except for files that end with final.pth
+!checkpoints/**/
 !checkpoints/**/*final.pth
 
 .DS_Store
