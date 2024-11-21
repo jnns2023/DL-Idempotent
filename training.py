@@ -41,7 +41,14 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
             # calculate losses
             loss_rec = (fx - x).pow(2).mean()
             loss_idem = (f_fz - fz).pow(2).mean()
-            loss_tight = -(ff_z - f_z).pow(2).mean()
+
+            # Define the constant alpha >= 1
+            a = 1.5 # NOTE: might need change if the loss_tight is too high
+            # Compute the original tight loss
+            loss_tight_unclamped = -(fz - ff_z).pow(2).mean()
+            # Clamp loss_tight using tanh
+            loss_tight = torch.tanh(loss_tight_unclamped / (a * loss_rec)) * (a * loss_rec)
+
 
             writer.add_scalar("Loss/loss_rec", loss_rec, batch_count)
             writer.add_scalar("Loss/loss_idem", loss_idem, batch_count)
