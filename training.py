@@ -3,6 +3,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
 from gen_utils import *
+from torch_fidelity import calculate_metrics
 
 def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
     print(f"Training using {device}")
@@ -75,6 +76,30 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
 
             opt.step()
             batch_count += 1
+        
+        # FID score calculation
+        with torch.no_grad:
+            fake_images = f(z_gen)
+            real_images = test_imgs
+
+            # Normalize images to [-1, 1]
+            real_images = (real_images - real_images.min()) / (real_images.max() - real_images.min())
+            fake_images = (fake_images - fake_images.min()) / (fake_images.max() - fake_images.min())
+
+            # Calculate FID score
+            fid_score = calculate_metrics(
+                input1=fake_images,
+                input2=real_images,
+                isc=False, # Inception Score
+                fid=True, # Frechet Inception Distance
+                kid=False, # Kernel Inception Distance
+            )
+            fid_score = fid_score['frechet_inception_distance']
+        
+
+        # FID score logging
+        writer.add_scalar("FID", fid_score, epoch+1)
+
         
         # Log reconstruction
         writer.add_images('Reconstruction', f(test_imgs), epoch+1)
