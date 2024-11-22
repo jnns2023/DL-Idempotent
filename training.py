@@ -1,5 +1,6 @@
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from torch import nn
 from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
 from gen_utils import *
@@ -82,6 +83,13 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
         # Generate images
         img_no = 9 # Number of images to generate
         writer.add_images('Generation', f(z_gen), epoch+1)
+
+        for name, module in f.named_modules():
+            if isinstance(module, nn.BatchNorm2d):
+                writer.add_scalar(f"XBatchRunMean_mean/{name}", module.running_mean.mean(), epoch+1)
+                writer.add_scalar(f"XBatchRunMean_var/{name}", module.running_mean.std(dim=None), epoch+1)
+                writer.add_scalar(f"XBatchRunVar_mean/{name}", module.running_var.mean(), epoch+1)
+                writer.add_scalar(f"XBatchRunVar_var/{name}", module.running_var.std(dim=None), epoch+1)
 
 
         # Save model
