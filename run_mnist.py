@@ -42,6 +42,7 @@ def main(testing=True):
         'beta1': 0.5,
         'beta2': 0.999,
         'n_epochs': 100,
+        'momentum': 0.5, # default is 0.1
         'batch_size': 256,
         'testing': testing, 
         'save_path': save_path, 
@@ -53,8 +54,8 @@ def main(testing=True):
     data_loader, test_loader = load_MNIST(hparams['batch_size'])
 
     # Initialize f and f_copy
-    f = IdemNetMnist().to(device)
-    f_copy = IdemNetMnist().to(device)
+    f = IdemNetMnist(momentum=hparams['momentum']).to(device)
+    f_copy = IdemNetMnist(momentum=hparams['momentum']).to(device)
 
     # Initialize optimizer
     opt = optim.Adam(f.parameters(), lr=hparams['alpha'], betas=(hparams['beta1'], hparams['beta2']))

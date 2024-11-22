@@ -8,7 +8,7 @@ def init_weights(m):
     nn.init.constant_(m.bias, 0.0)
 
 class Encoder(nn.Module):
-  def __init__(self, in_channels=1, relu_slope=0.2):
+  def __init__(self, in_channels=1, relu_slope=0.2, momentum=0.1):
     super(Encoder, self).__init__()
 
     self.relu_slope = relu_slope
@@ -16,10 +16,10 @@ class Encoder(nn.Module):
     self.conv1 = nn.Conv2d(in_channels, out_channels=64, kernel_size=3, stride=2, padding=1)  # 64 x 32 x 32
 
     self.conv2 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=2, padding=1) # 128 x 16 x 16
-    self.bn2 = nn.BatchNorm2d(128)
+    self.bn2 = nn.BatchNorm2d(128, momentum=momentum)
 
     self.conv3 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=2, padding=1) # 256 x 8 x 8
-    self.bn3 = nn.BatchNorm2d(256)
+    self.bn3 = nn.BatchNorm2d(256, momentum=momentum)
 
     self.conv4 = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=4, stride=1, padding=0) # 512 x 4 x 4
 
@@ -36,17 +36,17 @@ class Encoder(nn.Module):
     return x
 
 class Decoder(nn.Module):
-  def __init__(self, out_channels=1):
+  def __init__(self, out_channels=1, momentum=0.1):
     super(Decoder, self).__init__()
 
     self.tconv1 = nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=4, stride=1, padding=0)
-    self.bn1 = nn.BatchNorm2d(256)
+    self.bn1 = nn.BatchNorm2d(256, momentum=momentum)
 
     self.tconv2 = nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=3, stride=2, padding=1)
-    self.bn2 = nn.BatchNorm2d(128)
+    self.bn2 = nn.BatchNorm2d(128, momentum=momentum)
 
     self.tconv3 = nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=4, stride=2, padding=1)
-    self.bn3 = nn.BatchNorm2d(64)
+    self.bn3 = nn.BatchNorm2d(64, momentum=momentum)
 
     self.tconv4 = nn.ConvTranspose2d(in_channels=64, out_channels=out_channels, kernel_size=4, stride=2, padding=1)
 
@@ -64,14 +64,14 @@ class Decoder(nn.Module):
 
 
 class IdemNetMnist (nn.Module):
-  def __init__(self, image_channels=1) -> None:
+  def __init__(self, image_channels=1, momentum=0.1) -> None:
     super(IdemNetMnist, self).__init__()
 
     # define layers
-    self.encoder = Encoder(image_channels)
+    self.encoder = Encoder(image_channels, momentum=momentum)
     self.encoder.apply(init_weights)  # set weights to papers initialization
 
-    self.decoder = Decoder(image_channels)
+    self.decoder = Decoder(image_channels, momentum=momentum)
     self.decoder.apply(init_weights)
 
   def forward(self, x):
