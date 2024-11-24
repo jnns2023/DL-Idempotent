@@ -59,8 +59,10 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
             # Clamp loss_tight using tanh
             loss_tight = torch.tanh(loss_tight_unclamped / (a * loss_rec)) * (a * loss_rec)
 
-
-            writer.add_scalar("Loss/loss_rec", loss_rec, batch_count)
+            if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
+                writer.add_scalar("Loss/loss_percept", loss_rec, batch_count)
+            else:
+                writer.add_scalar("Loss/loss_rec", loss_rec, batch_count)
             writer.add_scalar("Loss/loss_idem", loss_idem, batch_count)
             writer.add_scalar("Loss/loss_tight", loss_tight, batch_count)
             
