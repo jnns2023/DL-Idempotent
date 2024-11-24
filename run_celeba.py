@@ -43,6 +43,7 @@ def main(testing=True):
         'beta2': 0.999,
         'n_epochs': 100,
         'batch_size': 256,
+        'perceptual_loss': True,
         'testing': testing, 
         'save_path': save_path, 
         'save_interval': 5,
