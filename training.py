@@ -5,6 +5,7 @@ from torch import nn
 from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
 from gen_utils import *
+from perceptual_loss import PerceptualLoss
 
 def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
     print(f"Training using {device}")
@@ -12,6 +13,10 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
         log_path = 'test_runs/'
     else:
         log_path = 'runs/'
+
+    if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
+        perceptual_loss = PerceptualLoss(device=device)
+        hparams['lambda_rec'] *= 0.1  # set the multiplicative factor for the perceptual loss to be lower
 
     test_imgs, _ = next(iter(data_loader))
     test_imgs = test_imgs[0:9].to(device)
@@ -41,7 +46,12 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
             f_fz = f_copy(fz)
             
             # calculate losses
-            loss_rec = (fx - x).pow(2).mean()
+            if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
+                loss_rec = perceptual_loss(fx, x)
+            else:
+                loss_rec = (fx - x).pow(2).mean()
+
+
             loss_idem = (f_fz - fz).pow(2).mean()
 
             # Define the constant alpha >= 1
@@ -51,8 +61,10 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
             # Clamp loss_tight using tanh
             loss_tight = torch.tanh(loss_tight_unclamped / (a * loss_rec)) * (a * loss_rec)
 
-
-            writer.add_scalar("Loss/loss_rec", loss_rec, batch_count)
+            if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
+                writer.add_scalar("Loss/loss_percept", loss_rec, batch_count)
+            else:
+                writer.add_scalar("Loss/loss_rec", loss_rec, batch_count)
             writer.add_scalar("Loss/loss_idem", loss_idem, batch_count)
             writer.add_scalar("Loss/loss_tight", loss_tight, batch_count)
             
