@@ -1,8 +1,10 @@
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from torch import nn
 from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
 from gen_utils import *
+from perceptual_loss import PerceptualLoss
 
 def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
     print(f"Training using {device}")
@@ -10,6 +12,9 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
         log_path = 'test_runs/'
     else:
         log_path = 'runs/'
+
+    if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
+        perceptual_loss = PerceptualLoss(device=device)
 
     test_imgs, _ = next(iter(data_loader))
     test_imgs = test_imgs[0:9].to(device)
@@ -39,7 +44,12 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
             f_fz = f_copy(fz)
             
             # calculate losses
-            loss_rec = (fx - x).pow(2).mean()
+            if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
+                loss_rec = perceptual_loss(fx, x)
+            else:
+                loss_rec = (fx - x).pow(2).mean()
+
+
             loss_idem = (f_fz - fz).pow(2).mean()
 
             # Define the constant alpha >= 1
@@ -49,8 +59,10 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
             # Clamp loss_tight using tanh
             loss_tight = torch.tanh(loss_tight_unclamped / (a * loss_rec)) * (a * loss_rec)
 
-
-            writer.add_scalar("Loss/loss_rec", loss_rec, batch_count)
+            if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
+                writer.add_scalar("Loss/loss_percept", loss_rec, batch_count)
+            else:
+                writer.add_scalar("Loss/loss_rec", loss_rec, batch_count)
             writer.add_scalar("Loss/loss_idem", loss_idem, batch_count)
             writer.add_scalar("Loss/loss_tight", loss_tight, batch_count)
             
@@ -82,6 +94,13 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
         # Generate images
         img_no = 9 # Number of images to generate
         writer.add_images('Generation', f(z_gen), epoch+1)
+
+        for name, module in f.named_modules():
+            if isinstance(module, nn.BatchNorm2d):
+                writer.add_scalar(f"XBatchRunMean_mean/{name}", module.running_mean.mean(), epoch+1)
+                writer.add_scalar(f"XBatchRunMean_var/{name}", module.running_mean.std(dim=None), epoch+1)
+                writer.add_scalar(f"XBatchRunVar_mean/{name}", module.running_var.mean(), epoch+1)
+                writer.add_scalar(f"XBatchRunVar_var/{name}", module.running_var.std(dim=None), epoch+1)
 
 
         # Save model

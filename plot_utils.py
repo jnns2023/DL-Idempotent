@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 
-def plot_generation(inputs, model, num_images=5, num_applications=1):
+def plot_generation(inputs, model, num_images=5, num_applications=1, disturbance=None):
   """
   Plots input and output image pairs side by side.
   
@@ -13,6 +13,9 @@ def plot_generation(inputs, model, num_images=5, num_applications=1):
   num_images = min(num_images, len(inputs))
 
   images = [inputs]
+  if disturbance is not None:
+    images.append(disturbance(inputs))
+
   for _ in range(num_applications):
     images.append(model(images[-1]))
   
