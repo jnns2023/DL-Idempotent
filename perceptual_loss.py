@@ -32,5 +32,5 @@ class PerceptualLoss(nn.Module):
       x_features = slice(x_features)
       target_features = slice(target_features)
       loss += nn.functional.mse_loss(x_features, target_features)
-    return loss
+    return loss / len(self.selected_layers)
     
