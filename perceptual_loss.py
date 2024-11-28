@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 
+# layers previously was 3, 8, 15
 class PerceptualLoss(nn.Module):
-  def __init__(self, pretrained_model='vgg16', layers=[3, 8, 15], device=torch.device('cpu')):
+  def __init__(self, pretrained_model='vgg16', layers=[3], device=torch.device('cpu')):
     super().__init__()
     if pretrained_model == 'vgg16':
       model = models.vgg16(weights=models.VGG16_Weights.DEFAULT).features
@@ -32,5 +33,5 @@ class PerceptualLoss(nn.Module):
       x_features = slice(x_features)
       target_features = slice(target_features)
       loss += nn.functional.mse_loss(x_features, target_features)
-    return loss / len(self.selected_layers)
+    return loss
     

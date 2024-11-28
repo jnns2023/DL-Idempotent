@@ -15,7 +15,7 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
 
     if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
         perceptual_loss = PerceptualLoss(device=device)
-        hparams['lambda_rec'] *= 0.1  # set the multiplicative factor for the perceptual loss to be lower
+        # hparams['lambda_rec'] *= 0.1  # set the multiplicative factor for the perceptual loss to be lower
 
     test_imgs, _ = next(iter(data_loader))
     test_imgs = test_imgs[0:9].to(device)
