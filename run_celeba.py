@@ -46,7 +46,7 @@ def main(testing=True):
         'perceptual_loss': True,
         'testing': testing, 
         'save_path': save_path, 
-        'save_interval': 5,
+        'save_interval': 20,
         'log_path': 'celeba' + datetime.now().strftime("%Y%m%d-%H%M%S")
     }
 
