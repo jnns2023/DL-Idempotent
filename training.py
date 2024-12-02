@@ -1,4 +1,5 @@
 import torch
+from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.tensorboard import SummaryWriter
 from torch import nn
 from torch.nn.utils import clip_grad_norm_
@@ -88,7 +89,7 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
 
             opt.step()
             batch_count += 1
-        
+               
         # Log reconstruction
         writer.add_images('Reconstruction', f(test_imgs), epoch+1)
 

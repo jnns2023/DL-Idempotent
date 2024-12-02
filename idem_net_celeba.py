@@ -73,7 +73,7 @@ class Decoder(nn.Module):
 
 
 class IdemNetCeleba (nn.Module):
-  def __init__(self, image_channels=1) -> None:
+  def __init__(self, image_channels=3) -> None:
     super(IdemNetCeleba, self).__init__()
 
     # define layers
