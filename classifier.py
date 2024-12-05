@@ -39,7 +39,7 @@ def run_classifier():
     'log_path': 'classifier' + datetime.now().strftime("%Y%m%d-%H%M%S")
   }
 
-  dataloader, testloader = load_CelebA(hparams["batch_size"])
+  dataloader, testloader = load_CelebA(hparams["batch_size"], num_workers=8)
 
   dataloaders = {
      "train": dataloader,
