@@ -31,7 +31,7 @@ def run_classifier():
   hparams = {
     "learning_rate": 0.001,
     "n_epochs": 30,
-    "batch_size": 256,
+    "batch_size": 512,
     "device": device,
     'testing': testing, 
     'save_path': save_path, 
