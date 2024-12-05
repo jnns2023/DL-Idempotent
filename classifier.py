@@ -57,10 +57,10 @@ def run_classifier():
 
   # print(model)
 
+  print(f"Training using {device}")
   train(model, opt, dataloaders, hparams)
 
 def train(model, opt:optim.Optimizer, dataloaders, hparams):
-  print(f"Training using {hparams["device"]}")
   if hparams['testing']:
     log_path = 'test_runs/'
   else:
