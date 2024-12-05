@@ -47,7 +47,7 @@ def load_CelebA(batch_size=1):
 
   test_data = datasets.CelebA(
     root='data/',
-    split='test',
+    split='valid',
     # target_type='attr',
     transform=transform,
     download=True
