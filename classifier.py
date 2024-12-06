@@ -40,7 +40,7 @@ def run_classifier():
   }
 
   cpu_count = os.cpu_count()
-  num_workers = 1 if cpu_count is None else cpu_count // 2
+  num_workers = 1 if cpu_count is None else cpu_count
   print(f"Using {num_workers} workers")
   dataloader, testloader = load_CelebA(hparams["batch_size"], num_workers=num_workers)
 
