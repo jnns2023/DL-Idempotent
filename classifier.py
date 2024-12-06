@@ -39,10 +39,7 @@ def run_classifier():
     'log_path': 'classifier' + datetime.now().strftime("%Y%m%d-%H%M%S")
   }
 
-  cpu_count = os.cpu_count()
-  num_workers = 1 if cpu_count is None else cpu_count
-  print(f"Using {num_workers} workers")
-  dataloader, testloader = load_CelebA(hparams["batch_size"], num_workers=num_workers)
+  dataloader, testloader = load_CelebA(hparams["batch_size"], num_workers=4)
 
   dataloaders = {
      "train": dataloader,

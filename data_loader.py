@@ -53,7 +53,7 @@ def load_CelebA(batch_size=1, num_workers=2):
     download=True
   )
 
-  train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True, persistent_workers=True, prefetch_factor=4)
+  train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True, persistent_workers=True)
   test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
   return train_loader, test_loader
