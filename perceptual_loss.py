@@ -8,6 +8,18 @@ class PerceptualLoss(nn.Module):
     super().__init__()
     if pretrained_model == 'vgg16':
       model = models.vgg16(weights=models.VGG16_Weights.DEFAULT).features
+    elif pretrained_model == 'vgg16_celeba':
+      checkpoint_path = "checkpoints/classifier20241206-094306/epoch_15.pth"
+      model = models.vgg16()  # VGG with 16 layers
+      model.avgpool = nn.AdaptiveAvgPool2d(output_size=(2, 2))
+      model.classifier[0] = nn.Linear(2048, 4096)  # Input size changed to 2048
+      model.classifier[-1] = nn.Linear(4096, 40)
+
+      state_dict = torch.load(checkpoint_path, weights_only=True, map_location=device)
+
+      model.load_state_dict(state_dict["model_state_dict"])
+      model.eval()
+      model = model.features
     else:
       raise ValueError("The given model is not supported")
     
