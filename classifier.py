@@ -39,7 +39,10 @@ def run_classifier():
     'log_path': 'classifier' + datetime.now().strftime("%Y%m%d-%H%M%S")
   }
 
-  dataloader, testloader = load_CelebA(hparams["batch_size"], num_workers=4)
+  cpu_count = os.cpu_count()
+  num_workers = 1 if cpu_count is None else cpu_count // 2
+  print(f"Using {num_workers} workers")
+  dataloader, testloader = load_CelebA(hparams["batch_size"], num_workers=num_workers)
 
   dataloaders = {
      "train": dataloader,
@@ -47,11 +50,11 @@ def run_classifier():
   }
 
   model = models.vgg16()  # VGG with 16 layers
-  model.features[0] = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)  # Adjust input layer
+  # model.features[0] = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)  # Adjust input layer
   model.avgpool = nn.AdaptiveAvgPool2d(output_size=(2, 2))
   model.classifier[0] = nn.Linear(2048, 4096)  # Input size changed to 2048
   model.classifier[-1] = nn.Linear(4096, 40)  
-  model.to(hparams["device"])
+  model.to(device)
 
   opt = optim.Adam(model.parameters(), lr=hparams["learning_rate"])
 
@@ -120,10 +123,14 @@ def train(model, opt:optim.Optimizer, dataloaders, hparams):
       # Compute epoch loss
       epoch_loss = running_loss / len(dataloaders[phase].dataset)
       writer.add_scalar(f"Loss/{phase}", epoch_loss, epoch+1)
-      writer.add_scalar(f"Accuracy/validation", total_correct / total_samples, epoch + 1)
+      if phase == "val":
+        writer.add_scalar(f"Accuracy/validation", total_correct / total_samples, epoch + 1)
 
-      if (epoch % hparams['save_interval'] == 0):
-        checkpoint_path = hparams["save_path"] + f"epoch_{epoch + 1}.pth"
+      if ((epoch+1) % hparams['save_interval'] == 0):
+        if (epoch+1 == hparams["n_epochs"]):
+          checkpoint_path = hparams["save_path"] + "final.pth"
+        else:
+          checkpoint_path = hparams["save_path"] + f"epoch_{epoch + 1}.pth"
         torch.save({
           'epoch': epoch + 1,
           'model_state_dict': model.state_dict(),
