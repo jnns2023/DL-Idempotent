@@ -44,7 +44,7 @@ def main(testing=True):
         'n_epochs': 100,
         'batch_size': 256,
         'perceptual_loss': True,
-        'perceptual_model': 'vgg16_celeba',
+        'perceptual_model': 'squeeze',
         'testing': testing, 
         'save_path': save_path, 
         'save_interval': 20,

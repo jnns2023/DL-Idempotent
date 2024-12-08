@@ -20,6 +20,9 @@ class PerceptualLoss(nn.Module):
       model.load_state_dict(state_dict["model_state_dict"])
       model.eval()
       model = model.features
+    elif pretrained_model == 'squeeze':
+      model = models.squeezenet1_1(weights=models.SqueezeNet1_1_Weights.DEFAULT).features
+      model.eval()
     else:
       raise ValueError("The given model is not supported")
     
@@ -37,13 +40,16 @@ class PerceptualLoss(nn.Module):
     for param in self.parameters():
       param.requires_grad = False
 
-  def forward(self, x, target):
+  def forward(self, x, target, verbose=0):
     loss = 0.0
     x_features = x.clone().to(self.device)
     target_features = target.clone().to(self.device)
     for slice in self.slices:
       x_features = slice(x_features)
       target_features = slice(target_features)
+      if verbose > 0:
+        print(f"x var: {torch.var(x_features)} target var: {torch.var(target_features)}")
+        print(f"x non-zero fraction: {(x_features != 0).float().mean().item()} target non-zero fraction: {(target_features != 0).float().mean().item()}")
       loss += nn.functional.mse_loss(x_features, target_features)
     return loss
     
