@@ -41,7 +41,7 @@ def plot_generation(inputs, model, num_images=5, num_applications=1, disturbance
 
 
 def _show_rgb(image):
-  plt.imshow(image.squeeze().permute(1,2,0).detach().numpy())
+  plt.imshow(image.squeeze().permute(1,2,0).cpu().detach().numpy())
 
 def _show_gray(image):
-  plt.imshow(image.squeeze().detach().numpy(), cmap="gray")
+  plt.imshow(image.squeeze().cpu().detach().numpy(), cmap="gray")

@@ -1,4 +1,5 @@
 import torch
+from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.tensorboard import SummaryWriter
 from torch import nn
 from torch.nn.utils import clip_grad_norm_
@@ -14,7 +15,8 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
         log_path = 'runs/'
 
     if 'perceptual_loss' in hparams.keys() and hparams['perceptual_loss']:
-        perceptual_loss = PerceptualLoss(device=device)
+        perceptual_loss = PerceptualLoss(pretrained_model=hparams['perceptual_model'], device=device)
+        # hparams['lambda_rec'] *= 0.1  # set the multiplicative factor for the perceptual loss to be lower
 
     test_imgs, _ = next(iter(data_loader))
     test_imgs = test_imgs[0:9].to(device)
@@ -30,7 +32,7 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
 
     # Training loop
     for epoch in range(hparams['n_epochs']):
-        progress = tqdm(data_loader, desc=f'Epoch: {epoch + 1}/{hparams["n_epochs"]}')
+        progress = tqdm(data_loader, ascii=True, dynamic_ncols=True, desc=f'Epoch: {epoch + 1}/{hparams["n_epochs"]}')
         for x, labels in progress:
             x = x.to(device)
             z = torch.randn_like(x)
@@ -87,7 +89,7 @@ def train(f, f_copy, opt, data_loader, hparams, device=torch.device('cpu')):
 
             opt.step()
             batch_count += 1
-        
+               
         # Log reconstruction
         writer.add_images('Reconstruction', f(test_imgs), epoch+1)
 

@@ -44,9 +44,10 @@ def main(testing=True):
         'n_epochs': 100,
         'batch_size': 256,
         'perceptual_loss': True,
+        'perceptual_model': 'squeeze',
         'testing': testing, 
         'save_path': save_path, 
-        'save_interval': 5,
+        'save_interval': 20,
         'log_path': 'celeba' + datetime.now().strftime("%Y%m%d-%H%M%S")
     }
 

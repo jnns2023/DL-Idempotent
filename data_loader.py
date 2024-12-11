@@ -29,7 +29,7 @@ def load_MNIST(batch_size=1):
 
   return train_loader, test_loader
 
-def load_CelebA(batch_size=1):
+def load_CelebA(batch_size=1, num_workers=2):
   # TODO discuss this because it is not mentioned in the paper
   transform = transforms.Compose([
     transforms.CenterCrop(178),
@@ -47,13 +47,13 @@ def load_CelebA(batch_size=1):
 
   test_data = datasets.CelebA(
     root='data/',
-    split='test',
+    split='valid',
     # target_type='attr',
     transform=transform,
     download=True
   )
 
-  train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True, persistent_workers=True)
-  test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)
+  train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True, persistent_workers=True)
+  test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
   return train_loader, test_loader
